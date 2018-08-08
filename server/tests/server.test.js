@@ -243,3 +243,32 @@ describe('POST /users', () => {
             .end(done)
     });
 });
+
+describe('POST /users/login', () => {
+    it('should login user and return auth token', (done) => {
+        var email = 'ali@example.com';
+        var password = 'userOnePass';
+        request(app)
+            .post('/users/login')
+            .send({email, password})
+            .expect(200)
+            .expect((res) => {
+                expect(res.headers['x-auth']).toExist();
+            })
+            .end(done);
+    });
+
+    it('should reject invalid login', (done) => {
+        var email = 'example@example.com';
+        var password = '123abc';
+        
+        request(app)
+            .post('/users/login')
+            .send(email, password)
+            .expect(404)
+            .expect((res) => {
+                expect(res.headers['x-auth']).toNotExist();
+            })
+            .end(done);
+    });
+});
