@@ -19,6 +19,7 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 //         request(app)
 //             .post('/todo')
 //             .send({text})
+//             .set('x-auth', users[0].tokens[0].token)
 //             .expect(200)
 //             .expect((res) => {
 //                 expect(res.body.text).toBe(text);
@@ -38,6 +39,7 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 //         request(app)
 //             .post('/todo')
 //             .send({})
+//             .set('x-auth', users[0].tokens[0].token)
 //             .expect(400)
 //             .end((err, res) => {
 //                 if (err) {
@@ -57,9 +59,10 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 //     it('should get all todos', (done) => {
 //         request(app)
 //             .get('/todos')
+//             .set('x-auth', users[0].tokens[0].token)
 //             .expect(200)
 //             .expect((res) => {
-//                 expect(res.body.todos.length).toBe(2);
+//                 expect(res.body.todos.length).toBe(1);
 //             })
 //             .end(done);
 //     });
@@ -70,6 +73,7 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 //     it('should return todo doc', (done) => {
 //         request(app)
 //             .get(`/todos/${todos[0]._id.toHexString()}`)
+//             .set('x-auth', users[0].tokens[0].token)
 //             .expect(200)
 //             .expect((res) => {
 //                 expect(res.body.todo.text).toBe(todos[0].text);
@@ -77,10 +81,19 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 //             .end(done);
 //     });
 
+//     it('should not return todo doc created by other user', (done) => {
+//         request(app)
+//             .get(`/todos/${todos[1]._id.toHexString()}`)
+//             .set('x-auth', users[0].tokens[0].token)
+//             .expect(404)
+//             .end(done);
+//     });
+
 //     it('should return 404 if todo not found', (done) => {
 //         var hexId = new ObjectID();
 //         request(app)
 //             .get(`/todos/${hexId}`)
+//             .set('x-auth', users[0].tokens[0].token)
 //             .expect(404)
 //             .end(done);
 //     });
@@ -88,6 +101,7 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 //     it('should return 404 non-object ids', (done) => {
 //         request(app)
 //             .get('/todos/123')
+//             .set('x-auth', users[0].tokens[0].token)
 //             .expect(404)
 //             .end(done);
 //     });
@@ -99,6 +113,7 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 //         var hexId = todos[0]._id.toHexString();
 //         request(app)
 //             .delete(`/todos/${hexId}`)
+//             .set('x-auth', users[0].tokens[0].token)
 //             .expect(200)
 //             .expect((res) => {
 //                 expect(res.body._id).toBe(hexId);
@@ -110,8 +125,27 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 //                 done();
 //             });
             
-//             // Todo.findById(hexId).then((todo) => {
+//             // Todo.findOne(hexId).then((todo) => {
 //             //     expect(todo).toNotExist();
+//             //     done();
+//             // }).catch((e) => done(e));
+//     });
+
+//     it('should return deleted todo doc', (done) => {
+//         var hexId = todos[1]._id.toHexString();
+//         request(app)
+//             .delete(`/todos/${hexId}`)
+//             .set('x-auth', users[0].tokens[0].token)
+//             .expect(404)
+//             .end((err, res) => {
+//                 if (err) {
+//                     return done(err);
+//                 }
+//                 done();
+//             });
+            
+//             // Todo.findOne(hexId).then((todo) => {
+//             //     expect(todo).toExist();
 //             //     done();
 //             // }).catch((e) => done(e));
 //     });
@@ -120,6 +154,7 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 //         var id = new ObjectID();
 //         request(app)
 //             .delete(`/todos/${id}`)
+//             .set('x-auth', users[0].tokens[0].token)
 //             .expect(404)
 //             .end(done);
 //     });
@@ -127,6 +162,7 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 //     it('should return 404 if non-object ids', (done) => {
 //         request(app)
 //             .delete('/todos/123')
+//             .set('x-auth', users[0].tokens[0].token)
 //             .expect(404)
 //             .end(done);
 //     });
@@ -142,6 +178,7 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 //         }
 //         request(app)
 //             .patch(`/todos/${id}`)
+//             .set('x-auth', users[0].tokens[0].token)
 //             .send(todoObj)
 //             .expect(200)
 //             .expect((res) => {
@@ -160,6 +197,7 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 //         }
 //         request(app)
 //             .patch(`/todos/${id}`)
+//             .set('x-auth', users[0].tokens[0].token)
 //             .send(todoObj)
 //             .expect(200)
 //             .expect((res) => {
